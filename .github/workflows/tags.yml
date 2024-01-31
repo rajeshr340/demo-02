@@ -1,0 +1,49 @@
+name: Create Tag and Release
+
+on:
+  push:
+    branches:
+      - F1  # Change this to your main branch name
+      - F2
+
+jobs:
+  create_tag_and_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup nodejs
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Set up Git
+        run: |
+          git config --global user.email "rajeshr340@example.com"
+          git config --global user.name "Rajesh R"
+
+      - name: Bump version
+        id: bump_version
+        run: |
+          # Logic to bump version (e.g., using semantic-release, bump-version, etc.)
+          # Example:
+          npm install semantic-release
+          npx semantic-release
+
+      - name: Create Git tag
+        run: |
+          git tag -a v${{ steps.bump_version.outputs.version }} -m "Version ${{ steps.bump_version.outputs.version }}"
+          git push origin --tags
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1
+          release_name: Release 1
+          draft: false
+          prerelease: false
